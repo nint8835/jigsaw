@@ -6,6 +6,8 @@ import logging
 import traceback
 from typing import List
 
+from jigsaw.Plugin import JigsawPlugin
+
 
 class PluginLoader(object):
 
@@ -62,7 +64,17 @@ class PluginLoader(object):
             for dependency in manifest.get("dependencies", []):
                 if not self.get_plugin_loaded(dependency):
                     self.logger.debug("Must load dependency {} first.".format(dependency))
-                    self.load_plugin(self.get_manifest_for_plugin(dependency), *args)
+                    if self.get_manifest_for_plugin(dependency) is None:
+                        self.logger.error("Dependency {} could not be found.".format(dependency))
+                    else:
+                        self.load_plugin(self.get_manifest_for_plugin(dependency), *args)
+
+            not_loaded = [i for i in manifest.get("dependencies", []) if not self.get_plugin_loaded(i)]
+            if len(not_loaded) != 0:
+                self.logger.error("Plugin {} failed to load due to missing dependencies. Dependencies: {}".format(
+                    manifest["name"], ", ".join(not_loaded)
+                ))
+                return
 
             spec = importlib.util.spec_from_file_location(
                 manifest.get("module_name", manifest["name"].replace(" ", "_")),
@@ -72,7 +84,12 @@ class PluginLoader(object):
             spec.loader.exec_module(module)
 
             module_class = manifest.get("main_class", "Plugin")
-            plugin = getattr(module, module_class)(*args)
+            plugin_class = getattr(module, module_class)
+            if issubclass(plugin_class, JigsawPlugin):
+                plugin = plugin_class(manifest, *args)
+            else:
+                self.logger.error("Failed to load {} due to invalid baseclass.".format(manifest["name"]))
+                return
             self._plugins[manifest["name"]] = plugin
 
             self.logger.debug("Plugin {} loaded.".format(manifest["name"]))
@@ -86,3 +103,6 @@ class PluginLoader(object):
     def load_plugins(self, *args):
         for manifest in self._manifests:
             self.load_plugin(manifest, *args)
+
+    def get_plugin(self, name: str):
+        return self._plugins[name]
