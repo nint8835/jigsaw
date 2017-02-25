@@ -2,3 +2,5 @@
 Test.py
 *.pyc
 plugins/test_plugin/error.log
+MANIFEST
+dist/
