@@ -11,18 +11,20 @@ from .Plugin import JigsawPlugin
 
 class PluginLoader(object):
 
-    def __init__(self, plugin_path:str="", log_level=logging.INFO):
+    def __init__(self, plugin_path: str="", log_level=logging.INFO, plugin_class = JigsawPlugin):
         logging.basicConfig(format="{%(asctime)s} (%(name)s) [%(levelname)s]: %(message)s",
                             datefmt="%x, %X",
                             level=log_level)
-        self.logger = logging.getLogger("Jigsaw")
+        self._logger = logging.getLogger("Jigsaw")
 
         if plugin_path == "":
             self.plugin_path = os.path.join(os.getcwd(), "plugins")
-            self.logger.debug("No plugin path specified, using {}.".format(self.plugin_path))
+            self._logger.debug("No plugin path specified, using {}.".format(self.plugin_path))
         else:
             self.plugin_path = plugin_path
-            self.logger.debug("Using specified plugin path of {}.".format(self.plugin_path))
+            self._logger.debug("Using specified plugin path of {}.".format(self.plugin_path))
+
+        self._plugin_class = plugin_class
 
         self._manifests = []
         self._plugins = {}
@@ -33,20 +35,20 @@ class PluginLoader(object):
             item_path = os.path.join(self.plugin_path, item)
             if os.path.isdir(item_path):
                 manifest_path = os.path.join(self.plugin_path, item, "plugin.json")
-                self.logger.debug("Attempting to load plugin manifest from {}.".format(manifest_path))
+                self._logger.debug("Attempting to load plugin manifest from {}.".format(manifest_path))
                 if os.path.isfile(manifest_path):
                     try:
                         with open(manifest_path) as f:
                             manifest = json.load(f)
                         manifest["path"] = item_path
                         self._manifests.append(manifest)
-                        self.logger.debug("Loaded plugin manifest from {}.".format(manifest_path))
+                        self._logger.debug("Loaded plugin manifest from {}.".format(manifest_path))
                     except json.decoder.JSONDecodeError:
-                        self.logger.error("Failed to decode plugin manifest at {}.".format(manifest_path))
+                        self._logger.error("Failed to decode plugin manifest at {}.".format(manifest_path))
                     except OSError:
-                        self.logger.error("Failed to load plugin manifest at {}.".format(manifest_path))
+                        self._logger.error("Failed to load plugin manifest at {}.".format(manifest_path))
                 else:
-                    self.logger.debug("No plugin manifest found at {}.".format(manifest_path))
+                    self._logger.debug("No plugin manifest found at {}.".format(manifest_path))
 
     def get_manifest_for_plugin(self, plugin_name: str) -> dict:
         for manifest in self._manifests:
@@ -58,21 +60,21 @@ class PluginLoader(object):
 
     def load_plugin(self, manifest: dict, *args):
         if self.get_plugin_loaded(manifest["name"]):
-            self.logger.debug("Plugin {} is already loaded.".format(manifest["name"]))
+            self._logger.debug("Plugin {} is already loaded.".format(manifest["name"]))
             return
         try:
-            self.logger.debug("Attempting to load plugin {}.".format(manifest["name"]))
+            self._logger.debug("Attempting to load plugin {}.".format(manifest["name"]))
             for dependency in manifest.get("dependencies", []):
                 if not self.get_plugin_loaded(dependency):
-                    self.logger.debug("Must load dependency {} first.".format(dependency))
+                    self._logger.debug("Must load dependency {} first.".format(dependency))
                     if self.get_manifest_for_plugin(dependency) is None:
-                        self.logger.error("Dependency {} could not be found.".format(dependency))
+                        self._logger.error("Dependency {} could not be found.".format(dependency))
                     else:
                         self.load_plugin(self.get_manifest_for_plugin(dependency), *args)
 
             not_loaded = [i for i in manifest.get("dependencies", []) if not self.get_plugin_loaded(i)]
             if len(not_loaded) != 0:
-                self.logger.error("Plugin {} failed to load due to missing dependencies. Dependencies: {}".format(
+                self._logger.error("Plugin {} failed to load due to missing dependencies. Dependencies: {}".format(
                     manifest["name"], ", ".join(not_loaded)
                 ))
                 return
@@ -86,21 +88,21 @@ class PluginLoader(object):
 
             module_class = manifest.get("main_class", "Plugin")
             plugin_class = getattr(module, module_class)
-            if issubclass(plugin_class, JigsawPlugin):
+            if issubclass(plugin_class, self._plugin_class):
                 plugin = plugin_class(manifest, *args)
             else:
-                self.logger.error("Failed to load {} due to invalid baseclass.".format(manifest["name"]))
+                self._logger.error("Failed to load {} due to invalid baseclass.".format(manifest["name"]))
                 return
             self._plugins[manifest["name"]] = plugin
             self._modules[manifest["name"]] = module
 
-            self.logger.debug("Plugin {} loaded.".format(manifest["name"]))
+            self._logger.debug("Plugin {} loaded.".format(manifest["name"]))
 
         except:
             exc_path = os.path.join(manifest["path"], "error.log")
             with open(exc_path, "w") as f:
                 f.write(traceback.format_exc(5))
-            self.logger.error("Failed to load plugin {}. Error log written to {}.".format(manifest["name"], exc_path))
+            self._logger.error("Failed to load plugin {}. Error log written to {}.".format(manifest["name"], exc_path))
 
     def load_plugins(self, *args):
         for manifest in self._manifests:
