@@ -6,7 +6,7 @@ import logging
 import traceback
 from typing import List
 
-from jigsaw.Plugin import JigsawPlugin
+from .Plugin import JigsawPlugin
 
 
 class PluginLoader(object):
@@ -26,6 +26,7 @@ class PluginLoader(object):
 
         self._manifests = []
         self._plugins = {}
+        self._modules = {}
 
     def load_manifests(self):
         for item in os.listdir(self.plugin_path):
@@ -91,6 +92,7 @@ class PluginLoader(object):
                 self.logger.error("Failed to load {} due to invalid baseclass.".format(manifest["name"]))
                 return
             self._plugins[manifest["name"]] = plugin
+            self._modules[manifest["name"]] = module
 
             self.logger.debug("Plugin {} loaded.".format(manifest["name"]))
 
@@ -104,5 +106,15 @@ class PluginLoader(object):
         for manifest in self._manifests:
             self.load_plugin(manifest, *args)
 
-    def get_plugin(self, name: str):
+    def get_plugin(self, name: str) -> JigsawPlugin:
         return self._plugins[name]
+
+    def get_module(self, name: str):
+        return self._modules[name]
+
+    def get_all_plugins(self) -> List[dict]:
+        return [{
+            "manifest": i,
+            "plugin": self.get_plugin(i["name"]),
+            "module": self.get_module(i["name"])
+        } for i in self._manifests]
