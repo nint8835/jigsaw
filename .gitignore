@@ -4,3 +4,5 @@ Test.py
 plugins/test_plugin/error.log
 MANIFEST
 dist/
+build/
+Jigsaw.egg-info/
