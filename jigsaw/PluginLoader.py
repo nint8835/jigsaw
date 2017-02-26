@@ -50,7 +50,7 @@ class PluginLoader(object):
                 else:
                     self._logger.debug("No plugin manifest found at {}.".format(manifest_path))
 
-    def get_manifest_for_plugin(self, plugin_name: str) -> dict:
+    def get_manifest(self, plugin_name: str) -> dict:
         for manifest in self._manifests:
             if manifest["name"] == plugin_name:
                 return manifest
@@ -67,10 +67,10 @@ class PluginLoader(object):
             for dependency in manifest.get("dependencies", []):
                 if not self.get_plugin_loaded(dependency):
                     self._logger.debug("Must load dependency {} first.".format(dependency))
-                    if self.get_manifest_for_plugin(dependency) is None:
+                    if self.get_manifest(dependency) is None:
                         self._logger.error("Dependency {} could not be found.".format(dependency))
                     else:
-                        self.load_plugin(self.get_manifest_for_plugin(dependency), *args)
+                        self.load_plugin(self.get_manifest(dependency), *args)
 
             not_loaded = [i for i in manifest.get("dependencies", []) if not self.get_plugin_loaded(i)]
             if len(not_loaded) != 0:
