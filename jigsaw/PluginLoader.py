@@ -204,9 +204,9 @@ class PluginLoader(object):
 
         self._logger.debug("Plugin {} reloaded.".format(name))
 
-    def reload_all_plugins(self) -> None:
+    def reload_all_plugins(self, *args) -> None:
         """
         Reloads all initialized plugins
         """
         for manifest in self._manifests:
-            self.reload_plugin(manifest["name"])
+            self.reload_plugin(manifest["name"], *args)
