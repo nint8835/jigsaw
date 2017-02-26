@@ -1,8 +1,8 @@
 import importlib.util
-import os
 import json
 import json.decoder
 import logging
+import os
 import traceback
 from typing import List
 
@@ -43,21 +43,28 @@ class PluginLoader(object):
         for item in os.listdir(self.plugin_path):
             item_path = os.path.join(self.plugin_path, item)
             if os.path.isdir(item_path):
-                manifest_path = os.path.join(self.plugin_path, item, "plugin.json")
-                self._logger.debug("Attempting to load plugin manifest from {}.".format(manifest_path))
-                if os.path.isfile(manifest_path):
-                    try:
-                        with open(manifest_path) as f:
-                            manifest = json.load(f)
-                        manifest["path"] = item_path
-                        self._manifests.append(manifest)
-                        self._logger.debug("Loaded plugin manifest from {}.".format(manifest_path))
-                    except json.decoder.JSONDecodeError:
-                        self._logger.error("Failed to decode plugin manifest at {}.".format(manifest_path))
-                    except OSError:
-                        self._logger.error("Failed to load plugin manifest at {}.".format(manifest_path))
-                else:
-                    self._logger.debug("No plugin manifest found at {}.".format(manifest_path))
+                self.load_manifest(item_path)
+
+    def load_manifest(self, path: str) -> None:
+        """
+        Loads a plugin manifest from a given path
+        :param path: The folder to load the plugin manifest from
+        """
+        manifest_path = os.path.join(path, "plugin.json")
+        self._logger.debug("Attempting to load plugin manifest from {}.".format(manifest_path))
+        if os.path.isfile(manifest_path):
+            try:
+                with open(manifest_path) as f:
+                    manifest = json.load(f)
+                manifest["path"] = path
+                self._manifests.append(manifest)
+                self._logger.debug("Loaded plugin manifest from {}.".format(manifest_path))
+            except json.decoder.JSONDecodeError:
+                self._logger.error("Failed to decode plugin manifest at {}.".format(manifest_path))
+            except OSError:
+                self._logger.error("Failed to load plugin manifest at {}.".format(manifest_path))
+        else:
+            self._logger.debug("No plugin manifest found at {}.".format(manifest_path))
 
     def get_manifest(self, plugin_name: str) -> dict:
         """
@@ -162,3 +169,43 @@ class PluginLoader(object):
             "plugin": self.get_plugin(i["name"]),
             "module": self.get_module(i["name"])
         } for i in self._manifests]
+
+    def disable_all_plugins(self) -> None:
+        """
+        Calls the disable method on all initialized plugins
+        """
+        for plugin in self._plugins:
+            plugin.disable()
+
+    def reload_plugin(self, name: str) -> None:
+        """
+        Reloads a given plugin
+        :param name: The name of the plugin
+        """
+        self._logger.debug("Reloading {}.".format(name))
+
+        self._logger.debug("Disabling {}.".format(name))
+        self.get_plugin(name).disable()
+
+        self._logger.debug("Removing plugin instance.")
+        del self._plugins[name]
+
+        self._logger.debug("Unloading module.")
+        del self._modules[name]
+
+        self._logger.debug("Reloading manifest.")
+        old_manifest = self.get_manifest(name)
+        self._manifests.remove(old_manifest)
+        self.load_manifest(old_manifest["path"])
+
+        self._logger.debug("Loading {}.".format(name))
+        self.load_plugin(self.get_manifest(name))
+
+        self._logger.debug("Plugin {} reloaded.".format(name))
+
+    def reload_all_plugins(self) -> None:
+        """
+        Reloads all initialized plugins
+        """
+        for manifest in self._manifests:
+            self.reload_plugin(manifest["name"])
