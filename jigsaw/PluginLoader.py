@@ -177,10 +177,11 @@ class PluginLoader(object):
         for plugin in self._plugins:
             plugin.disable()
 
-    def reload_plugin(self, name: str) -> None:
+    def reload_plugin(self, name: str, *args) -> None:
         """
         Reloads a given plugin
         :param name: The name of the plugin
+        :param args: The args to pass to the plugin
         """
         self._logger.debug("Reloading {}.".format(name))
 
@@ -199,7 +200,7 @@ class PluginLoader(object):
         self.load_manifest(old_manifest["path"])
 
         self._logger.debug("Loading {}.".format(name))
-        self.load_plugin(self.get_manifest(name))
+        self.load_plugin(self.get_manifest(name), *args)
 
         self._logger.debug("Plugin {} reloaded.".format(name))
 
