@@ -17,6 +17,7 @@ class PluginLoader(object):
     def __init__(self, plugin_path: str="", log_level=logging.INFO, plugin_class=JigsawPlugin) -> None:
         """
         Initializes the plugin loader
+
         :param plugin_path: Path to load plugins from
         :param log_level: Log level
         :param plugin_class: Parent class of all plugins
@@ -51,6 +52,7 @@ class PluginLoader(object):
     def load_manifest(self, path: str) -> None:
         """
         Loads a plugin manifest from a given path
+
         :param path: The folder to load the plugin manifest from
         """
         manifest_path = os.path.join(path, "plugin.json")
@@ -72,6 +74,7 @@ class PluginLoader(object):
     def get_manifest(self, plugin_name: str) -> dict:
         """
         Gets the manifest for a specified plugin
+
         :param plugin_name: The name of the plugin
         :return: The manifest for the specified plugin
         """
@@ -82,6 +85,7 @@ class PluginLoader(object):
     def get_plugin_loaded(self, plugin_name: str) -> bool:
         """
         Returns if a given plugin is loaded
+
         :param plugin_name: The plugin to check to loaded status for
         :return: Whether the specified plugin is loaded
         """
@@ -90,6 +94,7 @@ class PluginLoader(object):
     def load_plugin(self, manifest: dict, *args) -> None:
         """
         Loads a plugin from the given manifest
+
         :param manifest: The manifest to use to load the plugin
         :param args: Arguments to pass to the plugin
         """
@@ -141,6 +146,7 @@ class PluginLoader(object):
     def load_plugins(self, *args) -> None:
         """
         Loads all plugins
+
         :param args: Arguments to pass to the plugins
         """
         for manifest in self._manifests:
@@ -149,6 +155,7 @@ class PluginLoader(object):
     def get_plugin(self, name: str) -> JigsawPlugin:
         """
         Gets a loaded plugin
+
         :param name: Name of the plugin
         :return: The plugin
         """
@@ -157,6 +164,7 @@ class PluginLoader(object):
     def get_module(self, name: str):
         """
         Gets the module for a plugin
+
         :param name: Name of the plugin
         :return: The module
         """
@@ -165,6 +173,7 @@ class PluginLoader(object):
     def get_all_plugins(self) -> List[dict]:
         """
         Gets all loaded plugins
+
         :return: List of all plugins
         """
         return [{
@@ -183,6 +192,7 @@ class PluginLoader(object):
     def reload_plugin(self, name: str, *args) -> None:
         """
         Reloads a given plugin
+
         :param name: The name of the plugin
         :param args: The args to pass to the plugin
         """
