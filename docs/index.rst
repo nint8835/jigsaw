@@ -11,6 +11,7 @@ Welcome to jigsaw's documentation!
    :caption: Contents:
 
    jigsaw
+   plugin.json
 
 
 Indices and tables
