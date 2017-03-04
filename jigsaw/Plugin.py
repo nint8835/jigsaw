@@ -1,7 +1,18 @@
 class JigsawPlugin(object):
+    """
+    Base class for all jigsaw plugins
+    """
 
-    def __init__(self, manifest: dict, *args):
+    def __init__(self, manifest: dict, *args) -> None:
+        """
+        Initializes the plugin
+        :param manifest: The plugin manifest
+        :param args: Any other arguments passed to the plugin
+        """
         self.manifest = manifest
 
-    def disable(self):
+    def disable(self) -> None:
+        """
+        Handles cleaning up before disabling/unloading a plugin
+        """
         pass

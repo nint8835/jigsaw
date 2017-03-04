@@ -10,6 +10,9 @@ from .Plugin import JigsawPlugin
 
 
 class PluginLoader(object):
+    """
+    Class that handles all of jigsaw's plugin management functions
+    """
 
     def __init__(self, plugin_path: str="", log_level=logging.INFO, plugin_class=JigsawPlugin) -> None:
         """
