@@ -2,7 +2,8 @@ import sys
 import os
 import pytest
 
-sys.path.append(os.path.abspath(os.path.join(os.path.abspath(__file__), "..")))
+sys.path.append(os.path.abspath(os.path.join(os.path.abspath(__file__), "..", "..")))
+print(sys.path)
 
 import jigsaw
 

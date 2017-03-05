@@ -8,3 +8,4 @@ build/
 Jigsaw.egg-info/
 docs/_build/
 .cache/
+.coverage
