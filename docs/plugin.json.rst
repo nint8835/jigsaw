@@ -1,3 +1,5 @@
+.. _plugin.json:
+
 plugin.json (Plugin Manifest)
 =============================
 
@@ -9,7 +11,7 @@ The options specified by jigsaw are:
 :name: Required. The name of the plugin. This value **MUST** be unique.
 :dependencies: A list of strings containing names of plugins that will be loaded before this plugin is loaded. If any plugins listed cannot be found or loaded, this plugin will not be loaded.
 :module_name: The name the plugin will be imported as. Used for internal import workings. Defaults to plugin name with spaces replaced with underscores.
-:path: The name of the file that contains the main plugin class. Defaults to __init__.py
+:path: The name of the file that contains the main :ref:`plugin class. <Plugin>` Defaults to __init__.py
 :main_class: The main plugin class. Defaults to Plugin
 
 Example plugin.json:
@@ -19,6 +21,6 @@ Example plugin.json:
 
     {
         "name": "Example Plugin",
-        "dependencies": ["Example Plugin", "Library Plugin"],
+        "dependencies": ["Example Dependency 1", "Example Dependency 2"],
         "main_class": "ExamplePlugin"
     }
