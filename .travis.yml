@@ -1,6 +1,15 @@
 language: python
 python:
-  - "3.6"
+  - '3.6'
 install:
   - python setup.py install
 script: pytest
+deploy:
+  provider: pypi
+  user: nint8835
+  password:
+    secure: WLUd0UwWojIXn9Xxm6clsiw5J6kz/eXtF4Cf6DTWMi5mDPJFIhKHINSlS7JBV/K35BkeZH9lFzxjaYeQ7sUe4jnCodBjE9x950UVecen826ygziyG0yUxxD/8B7RIJ3EYmJvbdMO2n5lfXWQpD5zP2wkco5kiwRDJu8crChuuLZEY3KHkGn+Qe5GtiUlDpvFVfAoLAzTA5QwegPNnZMmpK91evuS6iJlDk0Nmq8u5oVYZu4Hoy7IfW3MV/Os0NuK2S1jlPG3E2i5anKZnK61TwXKLMUdKP/fkQ5tl6Zgq21ua2dkvaBq6NVv/MyOmw2EeNqEQUtG9sKCxUsRd8fp6OgnBc8gAY50epseLUlaf+0wP0fuRfad2jSP95VYmV2SSsA/Sxr1R2vdXGi+c0WFVZYlIIz9/OiYXIC8fgxVlXqlUA05bTAikzz06KiwhZbrYNrHZHXgSgU/NZ6N2XuVuzEAuz7ytgnuJm9MQIUE+w2Ontzo0N/vKjQQqivNkCtlHYjVnqERcbpH+b6kGmnP2eZ2GisdR9o91uOvv6geJeDGcChbq849rMND1wosUraz1lUYV8hXVYcipK61JKEqYK/I7/axwdEdQmDh8FnpOn1Gy6pB5eSITXuCmD8lxEARCFBRhhJZIRA0I080e2Vqpgp6HpnRUfpR8iyvuaEoeQo=
+  on:
+    tags: true
+    distributions: sdist
+    repo: nint8835/jigsaw
