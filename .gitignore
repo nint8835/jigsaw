@@ -9,3 +9,4 @@ Jigsaw.egg-info/
 docs/_build/
 .cache/
 .coverage
+tests/plugins/ErrorTest/error.log

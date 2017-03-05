@@ -105,7 +105,7 @@ def test_getting_all_plugins():
     j.load_manifests()
     j.load_plugins()
     for item in j.get_all_plugins():
-        if item["manifest"]["name"] == "Missing Dependency Test":
+        if item["manifest"]["name"] in ["Missing Dependency Test", "Invalid Baseclass Test", "Error Test"]:
             assert isinstance(item["manifest"], dict)
             assert not isinstance(item["plugin"], jigsaw.JigsawPlugin)
         else:
@@ -132,3 +132,38 @@ def test_reload_specific_plugin():
     j.load_manifests()
     j.load_plugin(j.get_manifest("Basic Test"))
     j.reload_plugin("Basic Test")
+
+
+def test_load_invalid_plugin_manifest():
+    j = jigsaw.PluginLoader(os.path.abspath(os.path.join(os.path.abspath(__file__), "..", "plugins")))
+    j.load_manifest(os.path.abspath(os.path.join(os.path.abspath(__file__), "..", "plugins", "InvalidManifestTest")))
+    assert j.get_manifest("Invalid Manifest Test") is None
+
+
+def test_loading_plugin_already_loaded():
+    j = jigsaw.PluginLoader(os.path.abspath(os.path.join(os.path.abspath(__file__), "..", "plugins")))
+    j.load_manifests()
+    j.load_plugin(j.get_manifest("Basic Test"))
+    j.load_plugin(j.get_manifest("Basic Test"))
+
+
+def test_invalid_baseclass():
+    j = jigsaw.PluginLoader(os.path.abspath(os.path.join(os.path.abspath(__file__), "..", "plugins")))
+    j.load_manifests()
+    j.load_plugin(j.get_manifest("Invalid Baseclass Test"))
+    assert not j.get_plugin_loaded("Invalid Baseclass Test")
+
+
+def test_error_on_plugin_load():
+    j = jigsaw.PluginLoader(os.path.abspath(os.path.join(os.path.abspath(__file__), "..", "plugins")))
+    j.load_manifests()
+    j.load_plugin(j.get_manifest("Error Test"))
+    assert os.path.isfile(os.path.abspath(os.path.join(os.path.abspath(__file__), "..", "plugins", "ErrorTest", "error.log")))
+
+
+def test_oserror_on_load_plugin_manifest():
+    j = jigsaw.PluginLoader(os.path.abspath(os.path.join(os.path.abspath(__file__), "..", "plugins")))
+    os.mkdir(os.path.abspath(os.path.join(os.path.abspath(__file__), "..", "plugins", "OSErrorTest", "plugin.json")))
+    j.load_manifest(os.path.abspath(os.path.join(os.path.abspath(__file__), "..", "plugins", "OSErrorTest")))
+    os.rmdir(os.path.abspath(os.path.join(os.path.abspath(__file__), "..", "plugins", "OSErrorTest", "plugin.json")))
+    assert j.get_manifest("OS Error Test") is None

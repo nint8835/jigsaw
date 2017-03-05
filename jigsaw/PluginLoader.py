@@ -57,19 +57,16 @@ class PluginLoader(object):
         """
         manifest_path = os.path.join(path, "plugin.json")
         self._logger.debug("Attempting to load plugin manifest from {}.".format(manifest_path))
-        if os.path.isfile(manifest_path):
-            try:
-                with open(manifest_path) as f:
-                    manifest = json.load(f)
-                manifest["path"] = path
-                self._manifests.append(manifest)
-                self._logger.debug("Loaded plugin manifest from {}.".format(manifest_path))
-            except json.decoder.JSONDecodeError:
-                self._logger.error("Failed to decode plugin manifest at {}.".format(manifest_path))
-            except OSError:
-                self._logger.error("Failed to load plugin manifest at {}.".format(manifest_path))
-        else:
-            self._logger.debug("No plugin manifest found at {}.".format(manifest_path))
+        try:
+            with open(manifest_path) as f:
+                manifest = json.load(f)
+            manifest["path"] = path
+            self._manifests.append(manifest)
+            self._logger.debug("Loaded plugin manifest from {}.".format(manifest_path))
+        except json.decoder.JSONDecodeError:
+            self._logger.error("Failed to decode plugin manifest at {}.".format(manifest_path))
+        except OSError:
+            self._logger.error("Failed to load plugin manifest at {}.".format(manifest_path))
 
     def get_manifest(self, plugin_name: str) -> dict:
         """
