@@ -1,0 +1,4 @@
+{
+  "name": "Dependency Test",
+  "dependencies": ["Basic Test"]
+}

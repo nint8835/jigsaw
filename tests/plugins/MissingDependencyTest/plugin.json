@@ -1,0 +1,4 @@
+{
+  "name": "Missing Dependency Test",
+  "dependencies": ["This dependency shouldn't exist"]
+}

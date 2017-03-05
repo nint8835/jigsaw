@@ -159,7 +159,10 @@ class PluginLoader(object):
         :param name: Name of the plugin
         :return: The plugin
         """
-        return self._plugins[name]
+        try:
+            return self._plugins[name]
+        except KeyError:
+            return None
 
     def get_module(self, name: str):
         """
@@ -168,7 +171,10 @@ class PluginLoader(object):
         :param name: Name of the plugin
         :return: The module
         """
-        return self._modules[name]
+        try:
+            return self._modules[name]
+        except KeyError:
+            return None
 
     def get_all_plugins(self) -> List[dict]:
         """
@@ -187,7 +193,7 @@ class PluginLoader(object):
         Calls the disable method on all initialized plugins
         """
         for plugin in self._plugins:
-            plugin.disable()
+            self._plugins[plugin].disable()
 
     def reload_plugin(self, name: str, *args) -> None:
         """
@@ -222,4 +228,5 @@ class PluginLoader(object):
         Reloads all initialized plugins
         """
         for manifest in self._manifests:
-            self.reload_plugin(manifest["name"], *args)
+            if self.get_plugin(manifest["name"]) is not None:
+                self.reload_plugin(manifest["name"], *args)

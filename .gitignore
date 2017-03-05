@@ -7,3 +7,4 @@ dist/
 build/
 Jigsaw.egg-info/
 docs/_build/
+.cache/
