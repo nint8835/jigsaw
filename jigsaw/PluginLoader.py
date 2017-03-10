@@ -192,6 +192,13 @@ class PluginLoader(object):
         for plugin in self._plugins:
             self._plugins[plugin].disable()
 
+    def enable_all_plugins(self) -> None:
+        """
+        Calls the enable method on all initialized plugins
+        """
+        for plugin in self._plugins:
+            self._plugins[plugin].enable()
+
     def reload_plugin(self, name: str, *args) -> None:
         """
         Reloads a given plugin

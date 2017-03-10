@@ -12,6 +12,12 @@ class JigsawPlugin(object):
         """
         self.manifest = manifest
 
+    def enable(self) -> None:
+        """
+        Handles the setup of a plugin on enable
+        """
+        pass
+
     def disable(self) -> None:
         """
         Handles cleaning up before disabling/unloading a plugin

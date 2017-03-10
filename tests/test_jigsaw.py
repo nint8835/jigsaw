@@ -120,6 +120,13 @@ def test_disable_all_plugins():
     j.disable_all_plugins()
 
 
+def test_enable_all_plugins():
+    j = jigsaw.PluginLoader(os.path.abspath(os.path.join(os.path.abspath(__file__), "..", "plugins")))
+    j.load_manifests()
+    j.load_plugins()
+    j.enable_all_plugins()
+
+
 def test_reload_all_plugins():
     j = jigsaw.PluginLoader(os.path.abspath(os.path.join(os.path.abspath(__file__), "..", "plugins")))
     j.load_manifests()
