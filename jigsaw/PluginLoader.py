@@ -234,6 +234,6 @@ class PluginLoader(object):
         """
         Reloads all initialized plugins
         """
-        for manifest in self._manifests:
+        for manifest in self._manifests[:]:
             if self.get_plugin(manifest["name"]) is not None:
                 self.reload_plugin(manifest["name"], *args)
