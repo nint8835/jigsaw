@@ -225,6 +225,9 @@ class PluginLoader(object):
         self._logger.debug("Loading {}.".format(name))
         self.load_plugin(self.get_manifest(name), *args)
 
+        self._logger.debug("Enabling {}.".format(name))
+        self.get_plugin(name).enable()
+
         self._logger.debug("Plugin {} reloaded.".format(name))
 
     def reload_all_plugins(self, *args) -> None:
