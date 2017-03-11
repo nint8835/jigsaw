@@ -174,3 +174,11 @@ def test_oserror_on_load_plugin_manifest():
     j.load_manifest(os.path.abspath(os.path.join(os.path.abspath(__file__), "..", "plugins", "OSErrorTest")))
     os.rmdir(os.path.abspath(os.path.join(os.path.abspath(__file__), "..", "plugins", "OSErrorTest", "plugin.json")))
     assert j.get_manifest("OS Error Test") is None
+
+
+def test_unload_plugin():
+    j = jigsaw.PluginLoader(os.path.abspath(os.path.join(os.path.abspath(__file__), "..", "plugins")))
+    j.load_manifests()
+    j.load_plugin(j.get_manifest("Basic Test"))
+    j.unload_plugin("Basic Test")
+    assert not j.get_plugin_loaded("Basic Test")
