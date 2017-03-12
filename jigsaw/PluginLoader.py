@@ -199,6 +199,25 @@ class PluginLoader(object):
         for plugin in self._plugins:
             self._plugins[plugin].enable()
 
+    def reload_manifest(self, manifest: dict) -> None:
+        """
+        Reloads a manifest from the disk
+        :param manifest: The manifest to reload
+        """
+        self._logger.debug("Reloading manifest for {}.".format(manifest.get("name", "Unnamed Plugin")))
+        self._manifests.remove(manifest)
+        self.load_manifest(manifest["path"])
+        self._logger.debug("Manifest reloaded.")
+
+    def reload_all_manifests(self) -> None:
+        """
+        Reloads all loaded manifests, and loads any new manifests
+        """
+        self._logger.debug("Reloading all manifests.")
+        self._manifests = []
+        self.load_manifests()
+        self._logger.debug("All manifests reloaded.")
+
     def reload_plugin(self, name: str, *args) -> None:
         """
         Reloads a given plugin

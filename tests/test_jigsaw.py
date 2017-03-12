@@ -182,3 +182,17 @@ def test_unload_plugin():
     j.load_plugin(j.get_manifest("Basic Test"))
     j.unload_plugin("Basic Test")
     assert not j.get_plugin_loaded("Basic Test")
+
+
+def test_reload_specific_manifest():
+    j = jigsaw.PluginLoader(os.path.abspath(os.path.join(os.path.abspath(__file__), "..", "plugins")))
+    j.load_manifests()
+    j.reload_manifest(j.get_manifest("Basic Test"))
+    assert j.get_manifest("Basic Test") is not None
+
+
+def test_reload_all_manifests():
+    j = jigsaw.PluginLoader(os.path.abspath(os.path.join(os.path.abspath(__file__), "..", "plugins")))
+    j.load_manifests()
+    j.reload_all_manifests()
+    assert j.get_manifest("Basic Test") is not None
