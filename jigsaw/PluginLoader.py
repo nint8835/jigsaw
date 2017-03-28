@@ -14,11 +14,11 @@ class PluginLoader(object):
     Class that handles all of jigsaw's plugin management functions
     """
 
-    def __init__(self, plugin_path: str="", log_level=logging.INFO, plugin_class=JigsawPlugin) -> None:
+    def __init__(self, plugin_paths: tuple=(), log_level=logging.INFO, plugin_class=JigsawPlugin) -> None:
         """
         Initializes the plugin loader
 
-        :param plugin_path: Path to load plugins from
+        :param plugin_paths: Paths to load plugins from
         :param log_level: Log level
         :param plugin_class: Parent class of all plugins
         """
@@ -27,12 +27,12 @@ class PluginLoader(object):
                             level=log_level)
         self._logger = logging.getLogger("Jigsaw")
 
-        if plugin_path == "":
-            self.plugin_path = os.path.join(os.getcwd(), "plugins")
-            self._logger.debug("No plugin path specified, using {}.".format(self.plugin_path))
+        if len(plugin_paths) == 0:
+            self.plugin_paths = (os.path.join(os.getcwd(), "plugins"),)
+            self._logger.debug("No plugin path specified, using {}.".format(self.plugin_paths))
         else:
-            self.plugin_path = plugin_path
-            self._logger.debug("Using specified plugin path of {}.".format(self.plugin_path))
+            self.plugin_paths = plugin_paths
+            self._logger.debug("Using specified plugin paths of {}.".format(", ".join(self.plugin_paths)))
 
         self._plugin_class = plugin_class
 
@@ -44,10 +44,11 @@ class PluginLoader(object):
         """
         Loads all plugin manifests on the plugin path
         """
-        for item in os.listdir(self.plugin_path):
-            item_path = os.path.join(self.plugin_path, item)
-            if os.path.isdir(item_path):
-                self.load_manifest(item_path)
+        for path in self.plugin_paths:
+            for item in os.listdir(path):
+                item_path = os.path.join(path, item)
+                if os.path.isdir(item_path):
+                    self.load_manifest(item_path)
 
     def load_manifest(self, path: str) -> None:
         """
