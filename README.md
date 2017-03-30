@@ -4,5 +4,15 @@
 [![codecov](https://codecov.io/gh/nint8835/jigsaw/branch/master/graph/badge.svg)](https://codecov.io/gh/nint8835/jigsaw)
 [![Code Climate](https://lima.codeclimate.com/github/nint8835/jigsaw/badges/gpa.svg)](https://lima.codeclimate.com/github/nint8835/jigsaw)
 
-A plugin framework for Python.
-This readme will get more detailed in time.
+A powerful, simple to implement plugin loader and management framework for Python 3.6+
+
+## Installation
+To install jigsaw, simply run:
+
+	pip install jigsaw
+    
+## Implementation
+An example of implementing jigsaw into a plugin can be found in the [example folder](https://github.com/nint8835/jigsaw/tree/master/example)
+
+## Projects using jigsaw
+* [NintbotForDiscord](https://github.com/nint8835/NintbotForDiscord) - A modular bot framework for the voice and text chat service, Discord
