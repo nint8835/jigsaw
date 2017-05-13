@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name="Jigsaw",
-    version="3.0.0",
+    version="3.1.0",
     packages=["jigsaw", ],
     license="MIT",
     description="A plugin framework for Python3.6+",

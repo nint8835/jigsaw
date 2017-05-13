@@ -196,3 +196,8 @@ def test_reload_all_manifests():
     j.load_manifests()
     j.reload_all_manifests()
     assert j.get_manifest("Basic Test") is not None
+
+def test_quickload():
+    j = jigsaw.PluginLoader((os.path.abspath(os.path.join(os.path.abspath(__file__), "..", "plugins")),))
+    j.quickload()
+    assert j.get_plugin_loaded("Basic Test")
