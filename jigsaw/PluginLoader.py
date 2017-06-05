@@ -13,7 +13,6 @@ class PluginLoader(object):
     """
     The main plugin loader class
     """
-    
     def __init__(self, plugin_paths=(), log_level=logging.INFO, plugin_class=JigsawPlugin):
         """
         Initializes the plugin loader
