@@ -9,14 +9,14 @@ from typing import List
 from .Plugin import JigsawPlugin
 
 
-class Jigsaw(object):
+class PluginLoader(object):
     """
-    The main class for jigsaw
+    The main plugin loader class
     """
-
+    
     def __init__(self, plugin_paths=(), log_level=logging.INFO, plugin_class=JigsawPlugin):
         """
-        Initializes jigsaw
+        Initializes the plugin loader
 
         :param plugin_paths: Paths to load plugins from
         :param log_level: Log level
