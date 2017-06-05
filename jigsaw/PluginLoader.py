@@ -9,14 +9,14 @@ from typing import List
 from .Plugin import JigsawPlugin
 
 
-class PluginLoader(object):
+class Jigsaw(object):
     """
-    Class that handles all of jigsaw's plugin management functions
+    The main class for jigsaw
     """
 
-    def __init__(self, plugin_paths: tuple=(), log_level=logging.INFO, plugin_class=JigsawPlugin) -> None:
+    def __init__(self, plugin_paths=(), log_level=logging.INFO, plugin_class=JigsawPlugin):
         """
-        Initializes the plugin loader
+        Initializes jigsaw
 
         :param plugin_paths: Paths to load plugins from
         :param log_level: Log level
@@ -39,8 +39,9 @@ class PluginLoader(object):
         self._manifests = []
         self._plugins = {}
         self._modules = {}
+        self._handlers = {}
 
-    def load_manifests(self) -> None:
+    def load_manifests(self):
         """
         Loads all plugin manifests on the plugin path
         """
@@ -50,7 +51,7 @@ class PluginLoader(object):
                 if os.path.isdir(item_path):
                     self.load_manifest(item_path)
 
-    def load_manifest(self, path: str) -> None:
+    def load_manifest(self, path):
         """
         Loads a plugin manifest from a given path
 
@@ -69,7 +70,7 @@ class PluginLoader(object):
         except OSError:
             self._logger.error("Failed to load plugin manifest at {}.".format(manifest_path))
 
-    def get_manifest(self, plugin_name: str) -> dict:
+    def get_manifest(self, plugin_name):
         """
         Gets the manifest for a specified plugin
 
@@ -80,7 +81,7 @@ class PluginLoader(object):
             if manifest["name"] == plugin_name:
                 return manifest
 
-    def get_plugin_loaded(self, plugin_name: str) -> bool:
+    def get_plugin_loaded(self, plugin_name):
         """
         Returns if a given plugin is loaded
 
@@ -89,7 +90,7 @@ class PluginLoader(object):
         """
         return plugin_name in self._plugins
 
-    def load_plugin(self, manifest: dict, *args) -> None:
+    def load_plugin(self, manifest, *args):
         """
         Loads a plugin from the given manifest
 
@@ -141,7 +142,7 @@ class PluginLoader(object):
                 f.write(traceback.format_exc(5))
             self._logger.error("Failed to load plugin {}. Error log written to {}.".format(manifest["name"], exc_path))
 
-    def load_plugins(self, *args) -> None:
+    def load_plugins(self, *args):
         """
         Loads all plugins
 
@@ -150,7 +151,7 @@ class PluginLoader(object):
         for manifest in self._manifests:
             self.load_plugin(manifest, *args)
 
-    def get_plugin(self, name: str) -> JigsawPlugin:
+    def get_plugin(self, name):
         """
         Gets a loaded plugin
 
@@ -162,7 +163,7 @@ class PluginLoader(object):
         except KeyError:
             return None
 
-    def get_module(self, name: str):
+    def get_module(self, name):
         """
         Gets the module for a plugin
 
@@ -174,7 +175,7 @@ class PluginLoader(object):
         except KeyError:
             return None
 
-    def get_all_plugins(self) -> List[dict]:
+    def get_all_plugins(self):
         """
         Gets all loaded plugins
 
@@ -186,21 +187,21 @@ class PluginLoader(object):
             "module": self.get_module(i["name"])
         } for i in self._manifests]
 
-    def disable_all_plugins(self) -> None:
+    def disable_all_plugins(self):
         """
         Calls the disable method on all initialized plugins
         """
         for plugin in self._plugins:
             self._plugins[plugin].disable()
 
-    def enable_all_plugins(self) -> None:
+    def enable_all_plugins(self):
         """
         Calls the enable method on all initialized plugins
         """
         for plugin in self._plugins:
             self._plugins[plugin].enable()
 
-    def reload_manifest(self, manifest: dict) -> None:
+    def reload_manifest(self, manifest):
         """
         Reloads a manifest from the disk
         :param manifest: The manifest to reload
@@ -210,7 +211,7 @@ class PluginLoader(object):
         self.load_manifest(manifest["path"])
         self._logger.debug("Manifest reloaded.")
 
-    def reload_all_manifests(self) -> None:
+    def reload_all_manifests(self):
         """
         Reloads all loaded manifests, and loads any new manifests
         """
@@ -219,7 +220,7 @@ class PluginLoader(object):
         self.load_manifests()
         self._logger.debug("All manifests reloaded.")
 
-    def reload_plugin(self, name: str, *args) -> None:
+    def reload_plugin(self, name, *args):
         """
         Reloads a given plugin
 
@@ -250,7 +251,7 @@ class PluginLoader(object):
 
         self._logger.debug("Plugin {} reloaded.".format(name))
 
-    def reload_all_plugins(self, *args) -> None:
+    def reload_all_plugins(self, *args):
         """
         Reloads all initialized plugins
         """
@@ -258,7 +259,7 @@ class PluginLoader(object):
             if self.get_plugin(manifest["name"]) is not None:
                 self.reload_plugin(manifest["name"], *args)
 
-    def unload_plugin(self, name: str) -> None:
+    def unload_plugin(self, name):
         """
         Unloads a specified plugin
         :param name: The name of the plugin

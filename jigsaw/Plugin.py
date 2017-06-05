@@ -3,7 +3,7 @@ class JigsawPlugin(object):
     Base class for all jigsaw plugins
     """
 
-    def __init__(self, manifest: dict, *args) -> None:
+    def __init__(self, manifest, *args):
         """
         Initializes the plugin
 
@@ -12,13 +12,13 @@ class JigsawPlugin(object):
         """
         self.manifest = manifest
 
-    def enable(self) -> None:
+    def enable(self):
         """
         Handles the setup of a plugin on enable
         """
         pass
 
-    def disable(self) -> None:
+    def disable(self):
         """
         Handles cleaning up before disabling/unloading a plugin
         """
