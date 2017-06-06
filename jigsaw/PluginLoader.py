@@ -68,9 +68,9 @@ class PluginLoader(object):
             manifest["path"] = path
             self._manifests.append(manifest)
             self._logger.debug("Loaded plugin manifest from {}.".format(manifest_path))
-        except (ValueError, IOError) as e:
+        except ValueError:
             self._logger.error("Failed to decode plugin manifest at {}.".format(manifest_path))
-        except OSError:
+        except (OSError, IOError) as e:
             self._logger.error("Failed to load plugin manifest at {}.".format(manifest_path))
 
     def get_manifest(self, plugin_name):
