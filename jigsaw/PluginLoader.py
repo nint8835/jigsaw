@@ -1,10 +1,8 @@
 import importlib.util
 import json
-import json.decoder
 import logging
 import os
 import traceback
-from typing import List
 
 from .Plugin import JigsawPlugin
 
@@ -64,7 +62,7 @@ class PluginLoader(object):
             manifest["path"] = path
             self._manifests.append(manifest)
             self._logger.debug("Loaded plugin manifest from {}.".format(manifest_path))
-        except json.decoder.JSONDecodeError:
+        except ValueError:
             self._logger.error("Failed to decode plugin manifest at {}.".format(manifest_path))
         except OSError:
             self._logger.error("Failed to load plugin manifest at {}.".format(manifest_path))
