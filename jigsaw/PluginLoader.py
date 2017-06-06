@@ -36,7 +36,6 @@ class PluginLoader(object):
         self._manifests = []
         self._plugins = {}
         self._modules = {}
-        self._handlers = {}
 
     def load_manifests(self):
         """
