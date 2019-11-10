@@ -18,3 +18,4 @@ An example of implementing jigsaw into a program can be found in the [example fo
 * [NintbotForDiscord](https://github.com/nint8835/NintbotForDiscord) - A modular bot framework for the voice and text chat service, Discord
 * [Chainmail](https://github.com/Chainmail-Project/Chainmail) - A wrapper for the vanilla Minecraft server providing basic modding support
 * [Mercury](https://github.com/nint8835/Mercury) - A modular IRC bot framework
+* [Automata](https://github.com/MUNComputerScienceSociety/Automata) - Discord bot handling the management of the MUN Computer Science Society Discord server
