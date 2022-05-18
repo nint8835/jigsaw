@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "jigsaw"
+version = "3.2.0"
+description = "A plugin framework"
+authors = ["Riley Flynn <riley@rileyflynn.me>"]
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = "^3.6"
+
+[tool.poetry.dev-dependencies]
+pytest = "^6.2.5"
+pytest-cov = "^3.0.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
