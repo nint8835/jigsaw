@@ -10,3 +10,4 @@ docs/_build/
 .cache/
 .coverage
 tests/plugins/ErrorTest/error.log
+.python-version
