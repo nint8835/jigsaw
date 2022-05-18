@@ -1,17 +1,11 @@
 import json
 import logging
 import os
-import sys
 import traceback
 
 from .Plugin import JigsawPlugin
 
-if sys.version_info[0] > 3 or (sys.version[0] == 3 and sys.version[1] >= 5):
-    PY3 = True
-    import importlib.util
-else:
-    PY3 = False
-    import imp
+import importlib.util
 
 
 class PluginLoader(object):
@@ -120,18 +114,12 @@ class PluginLoader(object):
                 ))
                 return
 
-            if PY3:
-                spec = importlib.util.spec_from_file_location(
-                    manifest.get("module_name", manifest["name"].replace(" ", "_")),
-                    os.path.join(manifest["path"], manifest.get("main_path", "__init__.py"))
-                )
-                module = importlib.util.module_from_spec(spec)
-                spec.loader.exec_module(module)
-            else:
-                module = imp.load_source(
-                    manifest.get("module_name", manifest["name"].replace(" ", "_")),
-                    os.path.join(manifest["path"], manifest.get("main_path", "__init__.py"))
-                )
+            spec = importlib.util.spec_from_file_location(
+                manifest.get("module_name", manifest["name"].replace(" ", "_")),
+                os.path.join(manifest["path"], manifest.get("main_path", "__init__.py"))
+            )
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
 
             module_class = manifest.get("main_class", "Plugin")
             plugin_class = getattr(module, module_class)
