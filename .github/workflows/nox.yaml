@@ -30,6 +30,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Setup Nox
-        uses: excitedleigh/setup-nox@v2.0.0
+        uses: excitedleigh/setup-nox@v2.1.0
       - name: Run session
         run: nox -s "${{ matrix.session }}"
