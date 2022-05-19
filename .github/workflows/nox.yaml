@@ -16,6 +16,8 @@ jobs:
         uses: actions/checkout@v2
       - name: Get Matrix
         uses: nint8835/nox-build-matrix@v1.0.0
+        with:
+          keywords: not format
         id: matrix
     outputs:
       matrix: ${{ steps.matrix.outputs.matrix }}
