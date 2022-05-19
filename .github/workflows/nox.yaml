@@ -32,6 +32,6 @@ jobs:
       - name: Setup Nox
         uses: excitedleigh/setup-nox@v2.1.0
       - name: Setup nox-poetry
-        run: pip install nox-poetry
+        run: pip install nox-poetry poetry
       - name: Run session
         run: nox -s "${{ matrix.session }}"
