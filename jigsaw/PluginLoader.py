@@ -152,15 +152,13 @@ class PluginLoader:
                 )
                 return
 
-            spec = (
-                importlib.util.spec_from_file_location(
-                    manifest.get("module_name", manifest["name"].replace(" ", "_")),
-                    os.path.join(
-                        manifest["path"], manifest.get("main_path", "__init__.py")
-                    ),
+            spec = importlib.util.spec_from_file_location(
+                manifest.get("module_name", manifest["name"].replace(" ", "_")),
+                os.path.join(
+                    manifest["path"], manifest.get("main_path", "__init__.py")
                 ),
             )
-            assert isinstance(spec, ModuleSpec)
+            assert spec is not None
 
             module = importlib.util.module_from_spec(spec)
             assert isinstance(spec.loader, Loader)
