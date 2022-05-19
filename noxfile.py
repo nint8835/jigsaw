@@ -13,8 +13,15 @@ def test(session):
     session.run("pytest")
 
 
-@session(python=["3.10"])
+@session(python="3.10")
 def format(session):
     session.install("black", "isort")
     session.run("black", *PACKAGE_FILES)
     session.run("isort", *PACKAGE_FILES)
+
+
+@session(python="3.10")
+def lint(session) -> None:
+    session.install("black", "isort")
+    session.run("black", "--check", *PACKAGE_FILES)
+    session.run("isort", "--check", *PACKAGE_FILES)
