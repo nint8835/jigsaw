@@ -15,5 +15,6 @@ def test(session):
 
 @session(python=["3.10"])
 def format(session):
-    session.install("black")
+    session.install("black", "isort")
     session.run("black", *PACKAGE_FILES)
+    session.run("isort", *PACKAGE_FILES)

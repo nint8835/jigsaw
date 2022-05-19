@@ -1,2 +1,2 @@
-from .PluginLoader import PluginLoader
 from .Plugin import JigsawPlugin
+from .PluginLoader import PluginLoader

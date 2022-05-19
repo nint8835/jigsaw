@@ -1,11 +1,10 @@
+import importlib.util
 import json
 import logging
 import os
 import traceback
 
 from .Plugin import JigsawPlugin
-
-import importlib.util
 
 
 class PluginLoader(object):
