@@ -21,6 +21,12 @@ def format(session):
 
 
 @session(python="3.10")
+def typecheck(session):
+    session.install("mypy", ".")
+    session.run("mypy", PACKAGE_NAME)
+
+
+@session(python="3.10")
 def lint(session) -> None:
     session.install("black", "isort")
     session.run("black", "--check", *PACKAGE_FILES)
