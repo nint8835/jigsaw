@@ -1,12 +1,12 @@
 import importlib.util
-import json
 import logging
 import os
 import traceback
 from importlib.abc import Loader
-from importlib.machinery import ModuleSpec
 from types import ModuleType
-from typing import Any, Dict, List, Optional, Tuple, Type, Union, cast
+from typing import Any, Dict, List, Optional, Tuple, Type, Union
+
+import tomli
 
 from .Plugin import JigsawPlugin
 from .types import Manifest
@@ -72,13 +72,13 @@ class PluginLoader:
 
         :param path: The folder to load the plugin manifest from
         """
-        manifest_path = os.path.join(path, "plugin.json")
+        manifest_path = os.path.join(path, "plugin.toml")
         self._logger.debug(
             "Attempting to load plugin manifest from {}.".format(manifest_path)
         )
         try:
-            with open(manifest_path) as f:
-                manifest = json.load(f)
+            with open(manifest_path, "rb") as f:
+                manifest = tomli.load(f)
             manifest["path"] = path
             self._manifests.append(manifest)
             self._logger.debug("Loaded plugin manifest from {}.".format(manifest_path))
