@@ -105,11 +105,11 @@ def test_getting_all_plugins():
     j.load_manifests()
     j.load_plugins()
     for item in j.get_all_plugins():
-        if item["manifest"]["name"] in ["Missing Dependency Test", "Invalid Baseclass Test", "Error Test"]:
-            assert isinstance(item["manifest"], dict)
+        if item["manifest"].name in ["Missing Dependency Test", "Invalid Baseclass Test", "Error Test"]:
+            assert isinstance(item["manifest"], jigsaw.Manifest)
             assert not isinstance(item["plugin"], jigsaw.JigsawPlugin)
         else:
-            assert isinstance(item["manifest"], dict)
+            assert isinstance(item["manifest"], jigsaw.Manifest)
             assert isinstance(item["plugin"], jigsaw.JigsawPlugin)
 
 

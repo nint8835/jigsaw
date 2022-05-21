@@ -1,2 +1,3 @@
+id = "tests.dependency"
 name = "Dependency Test"
 dependencies = [ "Basic Test" ]
