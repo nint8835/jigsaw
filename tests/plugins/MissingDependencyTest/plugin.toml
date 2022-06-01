@@ -1,3 +1,3 @@
 id = "tests.missing_dependency"
 name = "Missing Dependency Test"
-dependencies = [ "This dependency shouldn't exist" ]
+dependencies = [ "nonexistent_dependency" ]
