@@ -121,10 +121,14 @@ class PluginLoader:
         :param args: Arguments to pass to the plugin
         """
         if self.get_plugin_loaded(manifest.jigsaw.id):
-            self._logger.debug("Plugin {} is already loaded.".format(manifest.jigsaw.id))
+            self._logger.debug(
+                "Plugin {} is already loaded.".format(manifest.jigsaw.id)
+            )
             return
         try:
-            self._logger.debug("Attempting to load plugin {}.".format(manifest.jigsaw.id))
+            self._logger.debug(
+                "Attempting to load plugin {}.".format(manifest.jigsaw.id)
+            )
             for dependency in manifest.jigsaw.dependencies:
                 if not self.get_plugin_loaded(dependency):
                     self._logger.debug(
