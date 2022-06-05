@@ -1,14 +1,14 @@
 import importlib.util
-import json
 import logging
 import os
 import traceback
 from importlib.abc import Loader
-from importlib.machinery import ModuleSpec
 from types import ModuleType
-from typing import Any, Dict, List, Optional, Tuple, Type, Union, cast
+from typing import Any, Dict, List, Optional, Tuple, Type, Union
 
-from .Plugin import JigsawPlugin
+import tomli
+
+from .plugin import JigsawPlugin
 from .types import Manifest
 
 
@@ -72,45 +72,46 @@ class PluginLoader:
 
         :param path: The folder to load the plugin manifest from
         """
-        manifest_path = os.path.join(path, "plugin.json")
+        manifest_path = os.path.join(path, "plugin.toml")
         self._logger.debug(
             "Attempting to load plugin manifest from {}.".format(manifest_path)
         )
         try:
-            with open(manifest_path) as f:
-                manifest = json.load(f)
-            manifest["path"] = path
-            self._manifests.append(manifest)
+            with open(manifest_path, "rb") as f:
+                manifest = tomli.load(f)
+
+            manifest.get("jigsaw", {})["path"] = path
+            self._manifests.append(Manifest.parse_obj(manifest))
             self._logger.debug("Loaded plugin manifest from {}.".format(manifest_path))
         except ValueError:
-            self._logger.error(
+            self._logger.exception(
                 "Failed to decode plugin manifest at {}.".format(manifest_path)
             )
         except (OSError, IOError) as e:
-            self._logger.error(
+            self._logger.exception(
                 "Failed to load plugin manifest at {}.".format(manifest_path)
             )
 
-    def get_manifest(self, plugin_name: str) -> Optional[Manifest]:
+    def get_manifest(self, plugin_id: str) -> Optional[Manifest]:
         """
         Gets the manifest for a specified plugin
 
-        :param plugin_name: The name of the plugin
+        :param plugin_id: The ID of the plugin
         :return: The manifest for the specified plugin
         """
         for manifest in self._manifests:
-            if manifest["name"] == plugin_name:
+            if manifest.jigsaw.id == plugin_id:
                 return manifest
         return None
 
-    def get_plugin_loaded(self, plugin_name: str) -> bool:
+    def get_plugin_loaded(self, plugin_id: str) -> bool:
         """
         Returns if a given plugin is loaded
 
-        :param plugin_name: The plugin to check to loaded status for
+        :param plugin_id: The plugin to check to loaded status for
         :return: Whether the specified plugin is loaded
         """
-        return plugin_name in self._plugins
+        return plugin_id in self._plugins
 
     def load_plugin(self, manifest: Manifest, *args: Any) -> None:
         """
@@ -119,12 +120,16 @@ class PluginLoader:
         :param manifest: The manifest to use to load the plugin
         :param args: Arguments to pass to the plugin
         """
-        if self.get_plugin_loaded(manifest["name"]):
-            self._logger.debug("Plugin {} is already loaded.".format(manifest["name"]))
+        if self.get_plugin_loaded(manifest.jigsaw.id):
+            self._logger.debug(
+                "Plugin {} is already loaded.".format(manifest.jigsaw.id)
+            )
             return
         try:
-            self._logger.debug("Attempting to load plugin {}.".format(manifest["name"]))
-            for dependency in manifest.get("dependencies", []):
+            self._logger.debug(
+                "Attempting to load plugin {}.".format(manifest.jigsaw.id)
+            )
+            for dependency in manifest.jigsaw.dependencies:
                 if not self.get_plugin_loaded(dependency):
                     self._logger.debug(
                         "Must load dependency {} first.".format(dependency)
@@ -140,23 +145,19 @@ class PluginLoader:
                         self.load_plugin(dep_manifest, *args)
 
             not_loaded = [
-                i
-                for i in manifest.get("dependencies", [])
-                if not self.get_plugin_loaded(i)
+                i for i in manifest.jigsaw.dependencies if not self.get_plugin_loaded(i)
             ]
             if len(not_loaded) != 0:
                 self._logger.error(
                     "Plugin {} failed to load due to missing dependencies. Dependencies: {}".format(
-                        manifest["name"], ", ".join(not_loaded)
+                        manifest.jigsaw.id, ", ".join(not_loaded)
                     )
                 )
                 return
 
             spec = importlib.util.spec_from_file_location(
-                manifest.get("module_name", manifest["name"].replace(" ", "_")),
-                os.path.join(
-                    manifest["path"], manifest.get("main_path", "__init__.py")
-                ),
+                manifest.jigsaw.name.replace(" ", "_"),
+                os.path.join(manifest.jigsaw.path, manifest.jigsaw.main_file),
             )
             assert spec is not None
 
@@ -164,29 +165,29 @@ class PluginLoader:
             assert isinstance(spec.loader, Loader)
             spec.loader.exec_module(module)
 
-            module_class = manifest.get("main_class", "Plugin")
+            module_class = manifest.jigsaw.main_class
             plugin_class = getattr(module, module_class)
             if issubclass(plugin_class, self._plugin_class):
                 plugin = plugin_class(manifest, *args)
             else:
                 self._logger.error(
                     "Failed to load {} due to invalid baseclass.".format(
-                        manifest["name"]
+                        manifest.jigsaw.id
                     )
                 )
                 return
-            self._plugins[manifest["name"]] = plugin
-            self._modules[manifest["name"]] = module
+            self._plugins[manifest.jigsaw.id] = plugin
+            self._modules[manifest.jigsaw.id] = module
 
-            self._logger.debug("Plugin {} loaded.".format(manifest["name"]))
+            self._logger.debug("Plugin {} loaded.".format(manifest.jigsaw.name))
 
         except:
-            exc_path = os.path.join(manifest["path"], "error.log")
+            exc_path = os.path.join(manifest.jigsaw.path, "error.log")
             with open(exc_path, "w") as f:
                 f.write(traceback.format_exc(5))
             self._logger.error(
                 "Failed to load plugin {}. Error log written to {}.".format(
-                    manifest["name"], exc_path
+                    manifest.jigsaw.id, exc_path
                 )
             )
 
@@ -199,33 +200,33 @@ class PluginLoader:
         for manifest in self._manifests:
             self.load_plugin(manifest, *args)
 
-    def get_plugin(self, name: str) -> Optional[Any]:
+    def get_plugin(self, id: str) -> Optional[Any]:
         """
         Gets a loaded plugin
 
-        :param name: Name of the plugin
+        :param id: ID of the plugin
         :return: The plugin
         """
         try:
-            return self._plugins[name]
+            return self._plugins[id]
         except KeyError:
             return None
 
-    def get_module(self, name: str) -> Optional[ModuleType]:
+    def get_module(self, id: str) -> Optional[ModuleType]:
         """
         Gets the module for a plugin
 
-        :param name: Name of the plugin
+        :param id: ID of the plugin
         :return: The module
         """
         try:
-            return self._modules[name]
+            return self._modules[id]
         except KeyError:
             return None
 
     def get_all_plugins(
         self,
-    ) -> List[Dict[str, Union[None, Dict[str, Any], ModuleType, Any]]]:
+    ) -> List[Dict[str, Union[None, Manifest, ModuleType, Any]]]:
         """
         Gets all loaded plugins
 
@@ -234,8 +235,8 @@ class PluginLoader:
         return [
             {
                 "manifest": i,
-                "plugin": self.get_plugin(i["name"]),
-                "module": self.get_module(i["name"]),
+                "plugin": self.get_plugin(i.jigsaw.id),
+                "module": self.get_module(i.jigsaw.id),
             }
             for i in self._manifests
         ]
@@ -259,11 +260,9 @@ class PluginLoader:
         Reloads a manifest from the disk
         :param manifest: The manifest to reload
         """
-        self._logger.debug(
-            "Reloading manifest for {}.".format(manifest.get("name", "Unnamed Plugin"))
-        )
+        self._logger.debug("Reloading manifest for {}.".format(manifest.jigsaw.id))
         self._manifests.remove(manifest)
-        self.load_manifest(manifest["path"])
+        self.load_manifest(manifest.jigsaw.path)
         self._logger.debug("Manifest reloaded.")
 
     def reload_all_manifests(self) -> None:
@@ -275,71 +274,71 @@ class PluginLoader:
         self.load_manifests()
         self._logger.debug("All manifests reloaded.")
 
-    def reload_plugin(self, name: str, *args: Any) -> None:
+    def reload_plugin(self, id: str, *args: Any) -> None:
         """
         Reloads a given plugin
 
-        :param name: The name of the plugin
+        :param id: The ID of the plugin
         :param args: The args to pass to the plugin
         """
-        self._logger.debug("Reloading {}.".format(name))
+        self._logger.debug("Reloading {}.".format(id))
 
-        self._logger.debug("Disabling {}.".format(name))
-        plugin = self.get_plugin(name)
+        self._logger.debug("Disabling {}.".format(id))
+        plugin = self.get_plugin(id)
         assert plugin is not None
         plugin.disable()
 
         self._logger.debug("Removing plugin instance.")
-        del self._plugins[name]
+        del self._plugins[id]
 
         self._logger.debug("Unloading module.")
-        del self._modules[name]
+        del self._modules[id]
 
         self._logger.debug("Reloading manifest.")
-        old_manifest = self.get_manifest(name)
+        old_manifest = self.get_manifest(id)
         assert old_manifest is not None
         self._manifests.remove(old_manifest)
-        self.load_manifest(old_manifest["path"])
+        self.load_manifest(old_manifest.jigsaw.path)
 
-        self._logger.debug("Loading {}.".format(name))
-        new_manifest = self.get_manifest(name)
+        self._logger.debug("Loading {}.".format(id))
+        new_manifest = self.get_manifest(id)
         assert new_manifest is not None
         self.load_plugin(new_manifest, *args)
 
-        self._logger.debug("Enabling {}.".format(name))
-        plugin = self.get_plugin(name)
+        self._logger.debug("Enabling {}.".format(id))
+        plugin = self.get_plugin(id)
         assert plugin is not None
         plugin.enable()
 
-        self._logger.debug("Plugin {} reloaded.".format(name))
+        self._logger.debug("Plugin {} reloaded.".format(id))
 
     def reload_all_plugins(self, *args: Any) -> None:
         """
         Reloads all initialized plugins
         """
         for manifest in self._manifests[:]:
-            if self.get_plugin(manifest["name"]) is not None:
-                self.reload_plugin(manifest["name"], *args)
+            if self.get_plugin(manifest.jigsaw.name) is not None:
+                self.reload_plugin(manifest.jigsaw.name, *args)
 
-    def unload_plugin(self, name: str) -> None:
+    def unload_plugin(self, id: str) -> None:
         """
         Unloads a specified plugin
-        :param name: The name of the plugin
+        :param id: The ID of the plugin
         """
-        self._logger.debug("Unloading {}.".format(name))
+        self._logger.debug("Unloading {}.".format(id))
 
         self._logger.debug("Removing plugin instance.")
-        del self._plugins[name]
+        del self._plugins[id]
 
         self._logger.debug("Unloading module.")
-        del self._modules[name]
+        del self._modules[id]
 
         self._logger.debug("Unloading manifest...")
-        manifest = self.get_manifest(name)
+        manifest = self.get_manifest(id)
         assert manifest is not None
         self._manifests.remove(manifest)
 
-        self._logger.debug("{} unloaded.".format(name))
+        self._logger.debug("{} unloaded.".format(id))
 
     def quickload(self, *args: Any) -> None:
         """
