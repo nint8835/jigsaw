@@ -1,4 +1,4 @@
-[meta]
+[jigsaw]
 id = "tests.dependency"
 name = "Dependency Test"
 dependencies = [ "tests.basic" ]

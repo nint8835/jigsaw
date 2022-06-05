@@ -80,7 +80,7 @@ class PluginLoader:
             with open(manifest_path, "rb") as f:
                 manifest = tomli.load(f)
 
-            manifest.get("meta", {})["path"] = path
+            manifest.get("jigsaw", {})["path"] = path
             self._manifests.append(Manifest.parse_obj(manifest))
             self._logger.debug("Loaded plugin manifest from {}.".format(manifest_path))
         except ValueError:
@@ -100,7 +100,7 @@ class PluginLoader:
         :return: The manifest for the specified plugin
         """
         for manifest in self._manifests:
-            if manifest.meta.id == plugin_id:
+            if manifest.jigsaw.id == plugin_id:
                 return manifest
         return None
 
@@ -120,12 +120,12 @@ class PluginLoader:
         :param manifest: The manifest to use to load the plugin
         :param args: Arguments to pass to the plugin
         """
-        if self.get_plugin_loaded(manifest.meta.id):
-            self._logger.debug("Plugin {} is already loaded.".format(manifest.meta.id))
+        if self.get_plugin_loaded(manifest.jigsaw.id):
+            self._logger.debug("Plugin {} is already loaded.".format(manifest.jigsaw.id))
             return
         try:
-            self._logger.debug("Attempting to load plugin {}.".format(manifest.meta.id))
-            for dependency in manifest.meta.dependencies:
+            self._logger.debug("Attempting to load plugin {}.".format(manifest.jigsaw.id))
+            for dependency in manifest.jigsaw.dependencies:
                 if not self.get_plugin_loaded(dependency):
                     self._logger.debug(
                         "Must load dependency {} first.".format(dependency)
@@ -141,19 +141,19 @@ class PluginLoader:
                         self.load_plugin(dep_manifest, *args)
 
             not_loaded = [
-                i for i in manifest.meta.dependencies if not self.get_plugin_loaded(i)
+                i for i in manifest.jigsaw.dependencies if not self.get_plugin_loaded(i)
             ]
             if len(not_loaded) != 0:
                 self._logger.error(
                     "Plugin {} failed to load due to missing dependencies. Dependencies: {}".format(
-                        manifest.meta.id, ", ".join(not_loaded)
+                        manifest.jigsaw.id, ", ".join(not_loaded)
                     )
                 )
                 return
 
             spec = importlib.util.spec_from_file_location(
-                manifest.meta.name.replace(" ", "_"),
-                os.path.join(manifest.meta.path, manifest.meta.main_file),
+                manifest.jigsaw.name.replace(" ", "_"),
+                os.path.join(manifest.jigsaw.path, manifest.jigsaw.main_file),
             )
             assert spec is not None
 
@@ -161,29 +161,29 @@ class PluginLoader:
             assert isinstance(spec.loader, Loader)
             spec.loader.exec_module(module)
 
-            module_class = manifest.meta.main_class
+            module_class = manifest.jigsaw.main_class
             plugin_class = getattr(module, module_class)
             if issubclass(plugin_class, self._plugin_class):
                 plugin = plugin_class(manifest, *args)
             else:
                 self._logger.error(
                     "Failed to load {} due to invalid baseclass.".format(
-                        manifest.meta.id
+                        manifest.jigsaw.id
                     )
                 )
                 return
-            self._plugins[manifest.meta.id] = plugin
-            self._modules[manifest.meta.id] = module
+            self._plugins[manifest.jigsaw.id] = plugin
+            self._modules[manifest.jigsaw.id] = module
 
-            self._logger.debug("Plugin {} loaded.".format(manifest.meta.name))
+            self._logger.debug("Plugin {} loaded.".format(manifest.jigsaw.name))
 
         except:
-            exc_path = os.path.join(manifest.meta.path, "error.log")
+            exc_path = os.path.join(manifest.jigsaw.path, "error.log")
             with open(exc_path, "w") as f:
                 f.write(traceback.format_exc(5))
             self._logger.error(
                 "Failed to load plugin {}. Error log written to {}.".format(
-                    manifest.meta.id, exc_path
+                    manifest.jigsaw.id, exc_path
                 )
             )
 
@@ -231,8 +231,8 @@ class PluginLoader:
         return [
             {
                 "manifest": i,
-                "plugin": self.get_plugin(i.meta.id),
-                "module": self.get_module(i.meta.id),
+                "plugin": self.get_plugin(i.jigsaw.id),
+                "module": self.get_module(i.jigsaw.id),
             }
             for i in self._manifests
         ]
@@ -256,9 +256,9 @@ class PluginLoader:
         Reloads a manifest from the disk
         :param manifest: The manifest to reload
         """
-        self._logger.debug("Reloading manifest for {}.".format(manifest.meta.id))
+        self._logger.debug("Reloading manifest for {}.".format(manifest.jigsaw.id))
         self._manifests.remove(manifest)
-        self.load_manifest(manifest.meta.path)
+        self.load_manifest(manifest.jigsaw.path)
         self._logger.debug("Manifest reloaded.")
 
     def reload_all_manifests(self) -> None:
@@ -294,7 +294,7 @@ class PluginLoader:
         old_manifest = self.get_manifest(id)
         assert old_manifest is not None
         self._manifests.remove(old_manifest)
-        self.load_manifest(old_manifest.meta.path)
+        self.load_manifest(old_manifest.jigsaw.path)
 
         self._logger.debug("Loading {}.".format(id))
         new_manifest = self.get_manifest(id)
@@ -313,8 +313,8 @@ class PluginLoader:
         Reloads all initialized plugins
         """
         for manifest in self._manifests[:]:
-            if self.get_plugin(manifest.meta.name) is not None:
-                self.reload_plugin(manifest.meta.name, *args)
+            if self.get_plugin(manifest.jigsaw.name) is not None:
+                self.reload_plugin(manifest.jigsaw.name, *args)
 
     def unload_plugin(self, id: str) -> None:
         """

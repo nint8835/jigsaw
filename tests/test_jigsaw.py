@@ -105,7 +105,7 @@ def test_getting_all_plugins():
     j.load_manifests()
     j.load_plugins()
     for item in j.get_all_plugins():
-        if item["manifest"].meta.id in ["tests.missing_dependency", "tests.invalid_baseclass", "tests.error"]:
+        if item["manifest"].jigsaw.id in ["tests.missing_dependency", "tests.invalid_baseclass", "tests.error"]:
             assert isinstance(item["manifest"], jigsaw.Manifest)
             assert not isinstance(item["plugin"], jigsaw.JigsawPlugin)
         else:

@@ -3,7 +3,7 @@ from typing import List, Optional
 from pydantic import BaseModel
 
 
-class ManifestMeta(BaseModel):
+class JigsawMeta(BaseModel):
     id: str
     name: str
 
@@ -17,4 +17,4 @@ class ManifestMeta(BaseModel):
 
 
 class Manifest(BaseModel):
-    meta: ManifestMeta
+    jigsaw: JigsawMeta

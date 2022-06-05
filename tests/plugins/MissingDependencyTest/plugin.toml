@@ -1,4 +1,4 @@
-[meta]
+[jigsaw]
 id = "tests.missing_dependency"
 name = "Missing Dependency Test"
 dependencies = [ "nonexistent_dependency" ]
