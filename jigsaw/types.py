@@ -3,7 +3,7 @@ from typing import List, Optional
 from pydantic import BaseModel
 
 
-class Manifest(BaseModel):
+class ManifestMeta(BaseModel):
     id: str
     name: str
 
@@ -14,3 +14,7 @@ class Manifest(BaseModel):
     main_file: str = "__init__.py"
     main_class: str = "Plugin"
     path: str = ""
+
+
+class Manifest(BaseModel):
+    meta: ManifestMeta
