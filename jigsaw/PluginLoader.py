@@ -6,7 +6,7 @@ import traceback
 
 from .Plugin import JigsawPlugin
 
-if sys.version_info[0] > 3 or (sys.version[0] == 3 and sys.version[1] >= 5):
+if sys.version_info[0] > 3 or (sys.version_info[0] == 3 and sys.version_info[1] >= 5):
     PY3 = True
     import importlib.util
 else:
