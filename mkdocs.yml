@@ -1,0 +1,17 @@
+site_name: Jigsaw
+site_description: A plugin framework for Python.
+repo_url: https://github.com/nint8835/jigsaw
+repo_name: nint8835/jigsaw
+edit_uri: edit/master/
+theme:
+  name: material
+  palette:
+    primary: deep purple
+    accent: yellow
+    scheme: slate
+  font:
+    text: IBM Plex Sans
+    code: IBM Plex Mono
+
+plugins:
+  - mkdocstrings
